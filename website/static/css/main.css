@@ -1,4 +1,16 @@
-body{
+body, html{
     margin: 0;
-    font-family: sans-serif;
+    padding: 0;
+}
+
+input{
+    margin-bottom: 10px;
+}
+
+.center-content{
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px);
+    align-items: center;
+    justify-content: center;
 }
