@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-db = SQLAlchemy
+db = SQLAlchemy()
 DB_NAME = "database.db"
 
 def create_app():
