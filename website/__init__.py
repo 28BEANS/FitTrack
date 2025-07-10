@@ -4,6 +4,7 @@ import os
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
+DB_PATH = os.path.join("instance", DB_NAME)
 
 def create_app():
     app = Flask(__name__)
@@ -24,7 +25,7 @@ def create_app():
     return app
 
 def create_database(app):
-    if not os.path.exists('website/' + DB_NAME):
+    if not os.path.exists(DB_PATH):
         with app.app_context(): 
             db.create_all()
         print("Created Database!")
