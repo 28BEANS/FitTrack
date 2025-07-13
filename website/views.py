@@ -8,3 +8,18 @@ views =  Blueprint('views', __name__)
 def home():
     return render_template('home.html', user=current_user)
 
+@views.route('/workouts')
+@login_required
+def workouts():
+    return render_template('workouts.html', user=current_user)
+
+
+@views.route('/meal')
+@login_required
+def meal():
+    return render_template('meal.html', user=current_user)
+
+@views.route('/weight')
+@login_required
+def weight():
+    return render_template('weight.html', user=current_user)
