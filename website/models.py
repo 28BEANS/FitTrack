@@ -16,3 +16,4 @@ class Workout(db.Model):
     title = db.Column(db.String(150), nullable=False)
     reps = db.Column(db.Integer, nullable=False)
     sets = db.Column(db.Integer, nullable=False)
+    load = db.Column(db.String(100), nullable=False)

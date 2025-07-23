@@ -17,8 +17,9 @@ def workouts():
         title = request.form['title']
         reps = int(request.form['reps'])
         sets = int(request.form['sets'])
+        load = request.form['load']
 
-        new_workout = Workout(title=title, reps=reps, sets=sets, user_id=current_user.id)
+        new_workout = Workout(title=title, reps=reps, sets=sets, load=load, user_id=current_user.id)
         db.session.add(new_workout)
         db.session.commit()
 
@@ -49,6 +50,7 @@ def update_workout(id):
     workout.title = request.form['title']
     workout.reps = int(request.form['reps'])
     workout.sets = int(request.form['sets'])
+    workout.load = request.form['load']
     db.session.commit()
     return redirect(url_for('views.workouts'))
 
