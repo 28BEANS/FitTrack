@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import  login_required, current_user
 from . import db
-from .models import Workout
+from .models import Workout, Routine
 
 views =  Blueprint('views', __name__)
 
@@ -18,22 +18,33 @@ def workouts():
         reps = int(request.form['reps'])
         sets = int(request.form['sets'])
         load = request.form['load']
+        routine_id = int(request.form['routine_id'])
 
-        new_workout = Workout(title=title, reps=reps, sets=sets, load=load, user_id=current_user.id)
+        routine = Routine.query.filter_by(id=routine_id, user_id=current_user.id).first()
+        if not routine:
+            return "Invalid routine.", 400
+
+        new_workout = Workout(
+            title=title,
+            reps=reps,
+            sets=sets,
+            load=load,
+            routine_id=routine_id
+        )
         db.session.add(new_workout)
         db.session.commit()
 
         return redirect(url_for('views.workouts'))
 
-    # Display workouts
-    workouts = Workout.query.filter_by(user_id=current_user.id).all()
-    return render_template('workouts.html', workouts=workouts)
+    routines = Routine.query.filter_by(user_id=current_user.id).all()
+    workouts_by_routine = {r: r.workouts for r in routines}
+    return render_template('workouts.html', routines=routines, workouts_by_routine=workouts_by_routine)
 
 @views.route('/delete-workout/<int:id>', methods=['POST'])
 @login_required
 def delete_workout(id):
     workout = Workout.query.get_or_404(id)
-    if workout.user_id != current_user.id:
+    if workout.routine.user_id != current_user.id:
         return "Unauthorized", 403
     db.session.delete(workout)
     db.session.commit()
@@ -44,7 +55,9 @@ def delete_workout(id):
 @login_required
 def update_workout(id):
     workout = Workout.query.get_or_404(id)
-    if workout.user_id != current_user.id:
+
+    # Corrected ownership check via routine
+    if workout.routine.user_id != current_user.id:
         return "Unauthorized", 403
 
     workout.title = request.form['title']
@@ -54,8 +67,27 @@ def update_workout(id):
     db.session.commit()
     return redirect(url_for('views.workouts'))
 
+@views.route('/add-routine', methods=['POST'])
+@login_required
+def add_routine():
+    label = request.form['label']
+    if not label.strip():
+        return "Routine label required", 400
 
+    new_routine = Routine(label=label.strip(), user_id=current_user.id)
+    db.session.add(new_routine)
+    db.session.commit()
+    return redirect(url_for('views.workouts'))
 
+@views.route('/delete-routine/<int:id>', methods=['POST'])
+@login_required
+def delete_routine(id):
+    routine = Routine.query.get_or_404(id)
+    if routine.user_id != current_user.id:
+        return "Unauthorized", 403
+    db.session.delete(routine)
+    db.session.commit()
+    return redirect(url_for('views.workouts'))
 
 @views.route('/meal')
 @login_required
