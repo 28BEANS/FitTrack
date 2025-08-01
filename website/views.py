@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import  login_required, current_user
 from . import db
-from .models import Workout, Routine
+from .models import Workout, Routine, Meal
 
 views =  Blueprint('views', __name__)
 
@@ -89,12 +89,30 @@ def delete_routine(id):
     db.session.commit()
     return redirect(url_for('views.workouts'))
 
-@views.route('/meal')
+@views.route('/meal', methods=['GET', 'POST'])
 @login_required
 def meal():
-    return render_template('meal.html', user=current_user)
+    if request.method == "POST":
+        category =  request.form['category']
+        name = request.form['name']
+        serving_size = request.form['serving_size']
+        day_id = int(request.form['day_id'])
+
+        new_meal = Meal(
+            category = category,
+            name = name,
+            serving_size = serving_size,
+            day_id = day_id
+        )
+
+        db.session.add(new_meal)
+        db.session.commit
+
+    elif request.method == "GET":
+        return render_template('meal.html', user=current_user)
 
 @views.route('/weight')
 @login_required
 def weight():
     return render_template('weight.html', user=current_user)
+
