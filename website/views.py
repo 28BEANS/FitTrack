@@ -89,6 +89,18 @@ def delete_routine(id):
     db.session.commit()
     return redirect(url_for('views.workouts'))
 
+@views.route('/add-day', methods=["POST"])
+@login_required
+def add_day():
+    label = request.form['label']
+    if not label.strip():
+        return "Routine label required", 400
+    
+    new_day = Routine(label=label.strip(), user_id=current_user.id)
+    db.session.add(new_day)
+    db.session.commit()
+    return redirect(url_for('views.meal'))
+
 @views.route('/meal', methods=['GET', 'POST'])
 @login_required
 def meal():

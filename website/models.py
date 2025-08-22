@@ -29,6 +29,7 @@ class Workout(db.Model):
 class Day(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    label = db.Column(db.String(150), nullable=False)
     meals = db.relationship('Meal', backref='day', lazy=True, cascade="all, delete")
     
 
