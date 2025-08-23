@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from flask_login import  login_required, current_user
 from . import db
-from .models import Workout, Routine, Meal
+from .models import Workout, Routine, Meal, Day
 
 views =  Blueprint('views', __name__)
 
@@ -101,6 +101,16 @@ def add_day():
     db.session.commit()
     return redirect(url_for('views.meal'))
 
+@views.route('/delete-day/<int:id>', methods=['POST'])
+@login_required
+def delete_day(id):
+    day = Day.query.get_or_404(id)
+    if day.user_id != current_user.id:
+        return "Unauthorized", 403
+    db.session.delete(day)
+    db.session.commit()
+    return redirect(url_for('views.meal'))
+
 @views.route('/meal', methods=['GET', 'POST'])
 @login_required
 def meal():
@@ -122,6 +132,16 @@ def meal():
 
     elif request.method == "GET":
         return render_template('meal.html', user=current_user)
+
+@views.route('/delete-day/<int:id>', methods=['POST'])
+@login_required
+def delete_day(id):
+    meal = Meal.query.get_or_404(id)
+    if meal.user_id != current_user.id:
+        return "Unauthorized", 403
+    db.session.delete(meal)
+    db.session.commit()
+    return redirect(url_for('views.meal'))
 
 @views.route('/weight')
 @login_required
