@@ -94,7 +94,7 @@ def delete_routine(id):
 def add_day():
     label = request.form['label']
     if not label.strip():
-        return "Routine label required", 400
+        return "Day label required", 400
     
     new_day = Routine(label=label.strip(), user_id=current_user.id)
     db.session.add(new_day)
@@ -133,9 +133,9 @@ def meal():
     elif request.method == "GET":
         return render_template('meal.html', user=current_user)
 
-@views.route('/delete-day/<int:id>', methods=['POST'])
+@views.route('/delete-meal/<int:id>', methods=['POST'])
 @login_required
-def delete_day(id):
+def delete_meal(id):
     meal = Meal.query.get_or_404(id)
     if meal.user_id != current_user.id:
         return "Unauthorized", 403
