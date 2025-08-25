@@ -143,6 +143,20 @@ def delete_meal(id):
     db.session.commit()
     return redirect(url_for('views.meal'))
 
+@views.route('/update-meal/<int:id>', methods=['POST'])
+@login_required
+def update_meal(id):
+    meal = Meal.query.get_or_404(id)
+
+    if meal.day.user_id != current_user.id:
+        return "Unauthorized", 403
+
+    meal.category = request.form['category']
+    meal.name = request.form['name']
+    meal.serving_size = request.form['serving_size']
+    db.session.commit()
+    return redirect(url_for('views.meal'))
+
 @views.route('/weight')
 @login_required
 def weight():
