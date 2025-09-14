@@ -96,10 +96,11 @@ def add_day():
     if not label.strip():
         return "Day label required", 400
     
-    new_day = Routine(label=label.strip(), user_id=current_user.id)
+    new_day = Day(label=label.strip(), user_id=current_user.id)
     db.session.add(new_day)
     db.session.commit()
     return redirect(url_for('views.meal'))
+
 
 @views.route('/delete-day/<int:id>', methods=['POST'])
 @login_required
@@ -111,44 +112,54 @@ def delete_day(id):
     db.session.commit()
     return redirect(url_for('views.meal'))
 
+
 @views.route('/meal', methods=['GET', 'POST'])
 @login_required
 def meal():
     if request.method == "POST":
-        category =  request.form['category']
+        category = request.form['category']
         name = request.form['name']
         serving_size = request.form['serving_size']
         day_id = int(request.form['day_id'])
 
+        # make sure this day belongs to the current user
+        day = Day.query.get_or_404(day_id)
+        if day.user_id != current_user.id:
+            return "Unauthorized", 403
+
         new_meal = Meal(
-            category = category,
-            name = name,
-            serving_size = serving_size,
-            day_id = day_id
+            category=category,
+            name=name,
+            serving_size=serving_size,
+            day_id=day_id
         )
 
         db.session.add(new_meal)
-        db.session.commit
+        db.session.commit()
+        return redirect(url_for('views.meal'))
 
     elif request.method == "GET":
-        return render_template('meal.html', user=current_user)
+        days = Day.query.filter_by(user_id=current_user.id).all()
+        return render_template('meal.html', user=current_user, days=days)
+
 
 @views.route('/delete-meal/<int:id>', methods=['POST'])
 @login_required
 def delete_meal(id):
     meal = Meal.query.get_or_404(id)
-    if meal.user_id != current_user.id:
+    if meal.day.user_id != current_user.id:  # check ownership via the parent Day
         return "Unauthorized", 403
     db.session.delete(meal)
     db.session.commit()
     return redirect(url_for('views.meal'))
+
 
 @views.route('/update-meal/<int:id>', methods=['POST'])
 @login_required
 def update_meal(id):
     meal = Meal.query.get_or_404(id)
 
-    if meal.day.user_id != current_user.id:
+    if meal.day.user_id != current_user.id:  # same fix here
         return "Unauthorized", 403
 
     meal.category = request.form['category']
