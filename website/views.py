@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import  login_required, current_user
 from . import db
-from .models import Workout, Routine, Meal, Day
+from .models import Workout, Routine, Meal, Day, WeightEntry
+from datetime import date
 
 views =  Blueprint('views', __name__)
 
@@ -168,8 +169,23 @@ def update_meal(id):
     db.session.commit()
     return redirect(url_for('views.meal'))
 
-@views.route('/weight')
+
+@views.route('/weight', methods=['GET', 'POST'])
 @login_required
 def weight():
-    return render_template('weight.html', user=current_user)
+    if request.method == 'POST':
+        weight = request.form.get('weight')
+        if weight:
+            entry = WeightEntry(user_id=current_user.id, weight=float(weight))
+            db.session.add(entry)
+            db.session.commit()
+            flash('Weight added successfully.', 'success')
+
+    entries = WeightEntry.query.filter_by(user_id=current_user.id).order_by(WeightEntry.date).all()
+
+    dates = [e.date.strftime("%Y-%m-%d") for e in entries]
+    weights = [e.weight for e in entries]
+
+    return render_template('weight.html', user=current_user, dates=dates, weights=weights)
+
 

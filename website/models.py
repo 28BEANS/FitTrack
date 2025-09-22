@@ -1,5 +1,6 @@
 from . import db
 from flask_login import UserMixin
+from datetime import date
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,6 +40,14 @@ class Meal(db.Model):
     category = db.Column(db.String(150), nullable=False) 
     name = db.Column(db.String(150), nullable=False)
     serving_size = db.Column(db.String(150), nullable=False)
+
+
+class WeightEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False, default=date.today) 
+    weight = db.Column(db.Float, nullable=False)
+
 
 
 

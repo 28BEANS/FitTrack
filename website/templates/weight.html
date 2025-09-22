@@ -1,12 +1,51 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <title>Weight Tracker</title>
+  <title>Weight Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
-
 
 {% block body %}
 <div class="container">
-    <h1>Weight Tracker</h1>
+  <h1>Weight Tracker</h1>
+
+  <!-- Weight input form -->
+  <form method="POST" action="{{ url_for('views.weight') }}">
+    <input type="number" name="weight" step="0.1" placeholder="Enter weight (kg)" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <!-- Graph -->
+  <div style="max-width: 700px; margin-top: 30px;">
+    <canvas id="weightChart"></canvas>
+  </div>
 </div>
+
+<script>
+  const ctx = document.getElementById('weightChart').getContext('2d');
+  const weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ dates|tojson }},
+      datasets: [{
+        label: 'Weight (kg)',
+        data: {{ weights|tojson }},
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0,0,255,0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Date' } },
+        y: { title: { display: true, text: 'Weight (kg)' } }
+      }
+    }
+  });
+</script>
 {% endblock %}
