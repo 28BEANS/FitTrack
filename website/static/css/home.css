@@ -1,0 +1,45 @@
+.card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .card img {
+      transition: transform 0.4s ease;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .card:hover img {
+      transform: scale(1.05);
+    }
+
+    .card-body {
+      background: white;
+      padding: 1.5rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    a.text-decoration-none:hover .card-title {
+      color: #0d6efd;
+    }
+
+    /* Optional: Add a glow accent when hovered */
+    .card:hover {
+      box-shadow: 0 0 20px rgba(13, 110, 253, 0.3);
+    }
