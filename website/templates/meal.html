@@ -1,138 +1,142 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <title>Meal Tracker</title>
+  <title>Meal Tracker</title>
 {% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <!-- Header with + Add Day button -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1>Meal Planner</h1>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDayModal">
-            + Add Day
-        </button>
+<div class="container py-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="fw-semibold text-primary mb-1">Meal Tracker</h1>
+      <p class="text-muted mb-0">Track your meals and organize daily plans easily.</p>
     </div>
+    <button type="button" class="btn btn-primary shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#addDayModal">
+      + Add Day
+    </button>
+  </div>
 
-    {% if not days %}
-        <div class="alert alert-info">
-            You have no days added yet.
+  {% if not days %}
+    <div class="alert alert-info text-center py-4 shadow-sm rounded">
+      You haven’t added any days yet. Click <strong>+ Add Day</strong> to start planning.
+    </div>
+  {% endif %}
+
+  <!-- Day Cards -->
+  {% for day in days %}
+    <div class="card shadow-sm mb-4 border-0">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
+        <h4 class="mb-0 text-primary fw-semibold">{{ day.label }}</h4>
+        <div>
+          <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#addMealModal{{ day.id }}">
+            <i class="fa fa-plus"></i> Add Meal
+          </button>
+          <form method="POST" action="{{ url_for('views.delete_day', id=day.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="fa fa-trash"></i>
+            </button>
+          </form>
         </div>
-    {% endif %}
+      </div>
 
-    <!-- Day Cards -->
-    {% for day in days %}
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">{{ day.label }}</h4>
-                <div>
-                    <!-- Add Meal Button -->
-                    <button class="btn btn-sm btn-success me-2" data-bs-toggle="modal" data-bs-target="#addMealModal{{ day.id }}">
-                        + Add Meal
-                    </button>
-
-                    <!-- Delete Day Button -->
-                    <form method="POST" action="{{ url_for('views.delete_day', id=day.id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                    </form>
-                </div>
-            </div>
-
-            <ul class="list-group list-group-flush">
-                {% if day.meals %}
-                    {% for meal in day.meals %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ meal.name }}</strong><br>
-                                Category: {{ meal.category }} | Serving Size: {{ meal.serving_size }}
-                            </div>
-                            <div>
-                                <!-- Edit Meal Button -->
-                                <button class="btn btn-sm btn-warning me-2" data-bs-toggle="modal" data-bs-target="#editMealModal{{ meal.id }}">Edit</button>
-
-                                <!-- Delete Meal Button -->
-                                <form method="POST" action="{{ url_for('views.delete_meal', id=meal.id) }}" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                            </div>
-                        </li>
-
-                        <!-- Edit Meal Modal -->
-                        <div class="modal fade" id="editMealModal{{ meal.id }}" tabindex="-1" aria-labelledby="editMealModalLabel{{ meal.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <form method="POST" action="{{ url_for('views.update_meal', id=meal.id) }}" class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Edit Meal</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <label class="form-label">Category</label>
-                                        <input type="text" name="category" value="{{ meal.category }}" class="form-control" required>
-
-                                        <label class="form-label mt-2">Name</label>
-                                        <input type="text" name="name" value="{{ meal.name }}" class="form-control" required>
-
-                                        <label class="form-label mt-2">Serving Size</label>
-                                        <input type="text" name="serving_size" value="{{ meal.serving_size }}" class="form-control" required>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <li class="list-group-item text-muted">No meals in this day yet.</li>
-                {% endif %}
-            </ul>
-        </div>
-
-        <!-- Add Meal Modal (per day) -->
-        <div class="modal fade" id="addMealModal{{ day.id }}" tabindex="-1" aria-labelledby="addMealModalLabel{{ day.id }}" aria-hidden="true">
-            <div class="modal-dialog">
-                <form method="POST" action="{{ url_for('views.meal') }}" class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add Meal to {{ day.label }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="day_id" value="{{ day.id }}">
-
-                        <label class="form-label">Category</label>
-                        <input type="text" name="category" class="form-control" required>
-
-                        <label class="form-label mt-2">Name</label>
-                        <input type="text" name="name" class="form-control" required>
-
-                        <label class="form-label mt-2">Serving Size</label>
-                        <input type="text" name="serving_size" class="form-control" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Add Meal</button>
-                    </div>
+      <ul class="list-group list-group-flush">
+        {% if day.meals %}
+          {% for meal in day.meals %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="text-dark">{{ meal.name }}</strong><br>
+                <small class="text-muted">Category: {{ meal.category }} | Serving Size: {{ meal.serving_size }}</small>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#editMealModal{{ meal.id }}">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <form method="POST" action="{{ url_for('views.delete_meal', id=meal.id) }}" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fa fa-trash"></i>
+                  </button>
                 </form>
-            </div>
-        </div>
-    {% endfor %}
+              </div>
+            </li>
 
-    <!-- Add Day Modal (global) -->
-    <div class="modal fade" id="addDayModal" tabindex="-1" aria-labelledby="addDayModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="{{ url_for('views.add_day') }}" class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">New Day</h5>
+            <!-- Edit Meal Modal -->
+            <div class="modal fade" id="editMealModal{{ meal.id }}" tabindex="-1" aria-labelledby="editMealModalLabel{{ meal.id }}" aria-hidden="true">
+              <div class="modal-dialog">
+                <form method="POST" action="{{ url_for('views.update_meal', id=meal.id) }}" class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title text-primary">Edit Meal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <label for="label" class="form-label">Day Label</label>
-                    <input type="text" name="label" id="label" class="form-control" placeholder="e.g. Monday" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Create Day</button>
-                </div>
-            </form>
-        </div>
+                  </div>
+                  <div class="modal-body">
+                    <label class="form-label">Category</label>
+                    <input type="text" name="category" value="{{ meal.category }}" class="form-control" required>
+
+                    <label class="form-label mt-3">Name</label>
+                    <input type="text" name="name" value="{{ meal.name }}" class="form-control" required>
+
+                    <label class="form-label mt-3">Serving Size</label>
+                    <input type="text" name="serving_size" value="{{ meal.serving_size }}" class="form-control" required>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <li class="list-group-item text-muted text-center py-3">No meals added for this day yet.</li>
+        {% endif %}
+      </ul>
     </div>
+
+    <!-- Add Meal Modal (per day) -->
+    <div class="modal fade" id="addMealModal{{ day.id }}" tabindex="-1" aria-labelledby="addMealModalLabel{{ day.id }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <form method="POST" action="{{ url_for('views.meal') }}" class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-primary">Add Meal to {{ day.label }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="day_id" value="{{ day.id }}">
+
+            <label class="form-label">Category</label>
+            <input type="text" name="category" class="form-control" required>
+
+            <label class="form-label mt-3">Name</label>
+            <input type="text" name="name" class="form-control" required>
+
+            <label class="form-label mt-3">Serving Size</label>
+            <input type="text" name="serving_size" class="form-control" required>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary px-4">Add Meal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Add Day Modal -->
+  <div class="modal fade" id="addDayModal" tabindex="-1" aria-labelledby="addDayModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form method="POST" action="{{ url_for('views.add_day') }}" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-primary">New Day</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label for="label" class="form-label">Day Label</label>
+          <input type="text" name="label" id="label" class="form-control" placeholder="e.g. Monday" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary px-4">Create Day</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
