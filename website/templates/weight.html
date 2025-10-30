@@ -6,19 +6,34 @@
 {% endblock %}
 
 {% block body %}
-<div class="container">
-  <h1>Weight Tracker</h1>
+<div class="container py-5">
+
+  <div class="text-center mb-5">
+    <h1 class="fw-semibold text-primary">Weight Tracker</h1>
+    <p class="text-muted">Monitor your progress and visualize changes over time.</p>
+  </div>
 
   <!-- Weight input form -->
-  <form method="POST" action="{{ url_for('views.weight') }}">
-    <input type="number" name="weight" step="0.1" placeholder="Enter weight (kg)" required>
-    <button type="submit">Add</button>
-  </form>
+  <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('views.weight') }}" class="d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center">
+        <div class="form-floating flex-grow-1">
+          <input type="number" name="weight" step="0.1" id="weightInput" class="form-control" placeholder="Enter weight" required>
+          <label for="weightInput">Enter weight (kg)</label>
+        </div>
+        <button type="submit" class="btn btn-primary px-4">Add</button>
+      </form>
+    </div>
+  </div>
 
   <!-- Graph -->
-  <div style="max-width: 700px; margin-top: 30px;">
-    <canvas id="weightChart"></canvas>
+  <div class="card shadow-sm mx-auto mt-5" style="max-width: 800px;">
+    <div class="card-body">
+      <h5 class="card-title mb-4 text-center text-secondary">Progress Chart</h5>
+      <canvas id="weightChart" style="height: 300px;"></canvas>
+    </div>
   </div>
+
 </div>
 
 <script>
@@ -30,20 +45,29 @@
       datasets: [{
         label: 'Weight (kg)',
         data: {{ weights|tojson }},
-        borderColor: 'blue',
-        backgroundColor: 'rgba(0,0,255,0.2)',
+        borderColor: '#0d6efd',
+        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+        borderWidth: 2,
         fill: true,
-        tension: 0.3
+        tension: 0.4,
+        pointRadius: 4,
+        pointBackgroundColor: '#0d6efd'
       }]
     },
     options: {
       responsive: true,
       plugins: {
-        legend: { display: true }
+        legend: { display: false }
       },
       scales: {
-        x: { title: { display: true, text: 'Date' } },
-        y: { title: { display: true, text: 'Weight (kg)' } }
+        x: {
+          title: { display: true, text: 'Date', color: '#6c757d', font: { weight: 'bold' } },
+          ticks: { color: '#6c757d' }
+        },
+        y: {
+          title: { display: true, text: 'Weight (kg)', color: '#6c757d', font: { weight: 'bold' } },
+          ticks: { color: '#6c757d' }
+        }
       }
     }
   });
